@@ -48,7 +48,7 @@ before do
 
     # The HighLine instance used by the application *must* be the one supplied by
     # the client.
-    HighLine.stub(:new).and_return(@client.high_line)
+    allow(HighLine).to receive(:new).and_return(driver.high_line)
 
     # Do any other setup (e.g. stubbing) here
 

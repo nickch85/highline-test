@@ -16,9 +16,12 @@ module HighLine::Test
     end
 
     before do
-      subject.stub(:fork).and_return(child_pid)
-      IO.stub(:pipe).and_return(input_pipe, output_pipe)
-      Process.stub(:kill)
+      allow(subject).to receive(:fork).and_return(child_pid)
+      # subject.stub(:fork).and_return(child_pid)
+      allow(IO).to receive(:pipe).and_return(input_pipe, output_pipe)
+      # IO.stub(:pipe).and_return(input_pipe, output_pipe)
+      allow(Process).to receive(:kill)
+      # Process.stub(:kill)
     end
 
     describe '#delay' do
@@ -59,10 +62,10 @@ module HighLine::Test
         let(:driver) { double('Driver') }
 
         before do
-          subject.stub(:fork).and_return(nil)
-          PartialReader.stub(:new).and_return(partial_reader)
-          Driver.stub(:new).with(partial_reader, output_write).and_return(driver)
-          Process.stub(:pid).and_return(child_pid)
+          allow(subject).to receive(:fork).and_return(nil)
+          allow(PartialReader).to receive(:new).and_return(partial_reader)
+          allow(Driver).to receive(:new).with(partial_reader, output_write).and_return(driver)
+          allow(Process).to receive(:pid).and_return(child_pid)
         end
 
         it 'wraps the input stream in a class with a non-blocking #gets method' do
@@ -96,7 +99,7 @@ module HighLine::Test
 
       context 'parent process' do
         before do
-          PartialReader.stub(:new)
+          allow(PartialReader).to receive(:new)
         end
 
         it 'returns immediately' do
@@ -121,7 +124,7 @@ module HighLine::Test
       end
 
       it "doesn't fail if the child process has terminated" do
-        Process.stub(:kill).and_raise(Errno::ESRCH)
+        allow(Process).to receive(:kill).and_raise(Errno::ESRCH)
 
         expect {
           running_subject.cleanup
@@ -130,8 +133,10 @@ module HighLine::Test
 
       it 'closes pipes' do
         streams.each do |stream|
-          stream.stub(closed?: false)
-          stream.stub(:close)
+          allow(stream).to receive(:closed?).and_return(false)
+          allow(stream).to receive(:close)
+          # stream.stub(closed?: false)
+          # stream.stub(:close)
         end
 
         running_subject.cleanup
@@ -144,26 +149,27 @@ module HighLine::Test
 
     describe '#running?' do
       it 'is true in the parent after #run is called' do
-        expect(running_subject.running?).to be_true
+        expect(running_subject.running?).to be true
       end
 
       it 'is false after #cleanup' do
         running_subject.cleanup
 
-        expect(subject.running?).to be_false
+        expect(subject.running?).to be false
       end
     end
 
     describe '#type' do
       before do
-        input_write.stub(:<<)
-        subject.stub(:sleep)
+        allow(input_write).to receive(:<<)
+        allow(subject).to receive(:sleep)
+        # subject.stub(:sleep)
       end
 
       it 'expects a parameter' do
         expect {
           subject.type
-        }.to raise_error(ArgumentError, /0 for 1/)
+        }.to raise_error(ArgumentError, /given 0, expected 1/)
       end
 
       it 'fails if not running' do
@@ -188,10 +194,12 @@ module HighLine::Test
     describe '#output' do
       before do
         streams.each do |stream|
-          stream.stub(closed?: false)
-          stream.stub(:close)
+          allow(stream).to receive(:closed?).and_return(false)
+          allow(stream).to receive(:close)
+          # stream.stub(closed?: false)
+          # stream.stub(:close)
         end
-        output_read.stub(:readpartial).with(4096).and_return('Foo')
+        allow(output_read).to receive(:readpartial).with(4096).and_return('Foo')
       end
 
       it 'closes the output write stream' do

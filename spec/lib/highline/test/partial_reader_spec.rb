@@ -10,7 +10,7 @@ module HighLine::Test
       it 'expects a stream parameter' do
         expect {
           PartialReader.new
-        }.to raise_error(ArgumentError, /0 for 1/)
+        }.to raise_error(ArgumentError, /given 0, expected 1/)
       end
     end
 
@@ -24,7 +24,7 @@ module HighLine::Test
       let(:output) { 'Hi there' }
 
       before do
-        stream.stub(:readpartial).and_return(output)
+        allow(stream).to receive(:readpartial).and_return(output)
       end
 
       it 'performs a non-blocking read' do

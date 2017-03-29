@@ -11,7 +11,7 @@ module HighLine::Test
       it 'expects an input and an output stream' do
         expect {
           Driver.new
-        }.to raise_error(ArgumentError, /0 for 2/)
+        }.to raise_error(ArgumentError, /given 0, expected 2/)
       end
     end
 
@@ -31,8 +31,8 @@ module HighLine::Test
       let(:high_line) { double('HighLine') }
 
       before do
-        HighLine.stub(:track_eof=)
-        HighLine.stub(:new).and_return(high_line)
+        allow(HighLine).to receive(:track_eof=)
+        allow(HighLine).to receive(:new).and_return(high_line)
       end
 
       it 'stops HighLine tracking eof' do
@@ -61,7 +61,7 @@ module HighLine::Test
 
     describe '#inject' do
       before do
-        output_stream.stub(:<<)
+        allow(output_stream).to receive(:<<)
       end
 
       it 'adds text to the output stream' do
